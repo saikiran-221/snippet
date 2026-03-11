@@ -1,6 +1,7 @@
 "use client"
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
+import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -46,10 +47,18 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  asChild = false,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & { asChild?: boolean }) {
+  // If asChild is true, we must assume the user is passing a valid child Element
+  // Note: the new @base-ui/react/button doesn't use standard Radix Slot by default.
+  // For shadcn compatibility, if asChild is used, it usually wraps a custom node.
+  // We'll pass asChild={asChild as any} to ButtonPrimitive if it supports it,
+  // otherwise we just fallback to spreading.
   return (
     <ButtonPrimitive
+      render={asChild ? <Slot /> : undefined}
+      nativeButton={asChild ? false : undefined}
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
@@ -58,3 +67,4 @@ function Button({
 }
 
 export { Button, buttonVariants }
+
